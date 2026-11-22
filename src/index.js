@@ -10,9 +10,17 @@
  * сервер каждые 10 секунд, не нагружая championat.com.
  */
 
-import { fetchComments, fetchMatch, fetchMatches, moscowToday } from './championat.js';
+import {
+  enrichLiveMatches,
+  fetchComments,
+  fetchMatch,
+  fetchMatches,
+  moscowToday,
+} from './championat.js';
 
-const MATCHES_TTL_SEC = 30;
+const MATCHES_TTL_SEC = 15;
+/** Сколько матчей уточнять по страницам за один запрос списка. */
+const ENRICH_LIMIT = 3;
 const MATCH_TTL_SEC = 8;
 const COMMENTS_TTL_SEC = 8;
 
@@ -109,6 +117,8 @@ async function handleApi(request, url, ctx) {
   if (path === '/api/matches') {
     return cachedJson(request, url, MATCHES_TTL_SEC, async () => {
       const matches = await fetchMatches();
+      // Таблица матчей championat.com заморожена — уточняем идущие и стартующие.
+      await enrichLiveMatches(matches, ENRICH_LIMIT);
       return { matches, today: moscowToday(), updatedAt: new Date().toISOString() };
     }, ctx);
   }
