@@ -20,7 +20,7 @@ import {
 
 const MATCHES_TTL_SEC = 15;
 /** Сколько матчей уточнять по страницам за один запрос списка. */
-const ENRICH_LIMIT = 3;
+const ENRICH_LIMIT = 5;
 const MATCH_TTL_SEC = 8;
 const COMMENTS_TTL_SEC = 8;
 
