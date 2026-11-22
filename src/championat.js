@@ -250,7 +250,7 @@ export function parseMatchList(html) {
       startsAt: moscowTimestamp(dateText, timeText),
       score: (liveEntry?.score && liveEntry.score.replace(/\s+/g, ' ')) || score,
       status,
-      live: /период|тайм/i.test(status),
+      live: /период|тайм|таймаут|буллит|овертайм|перерыв/i.test(status),
       played,
     });
   }
