@@ -25,15 +25,22 @@ async function main() {
 
   const indexPath = join(PUBLIC, 'index.html');
   const html = await readFile(indexPath, 'utf8');
-  if (html.includes('window.API_BASE')) {
-    throw new Error('В index.html уже есть window.API_BASE — флаг добавляется один раз');
+  if (!html.includes('<script src="assets/app.js" defer></script>')) {
+    throw new Error('Не найден тег подключения assets/app.js в index.html');
   }
-  const patched = html.replace(
+
+  // Убираем прежний адрес живого API и подставляем пустую строку —
+  // Worker отдаёт API с того же origin.
+  const withoutFlag = html.replace(
+    /<script>\s*\/\/[^\n]*\n\s*window\.API_BASE = '[^']*';\n\s*<\/script>\n?/,
+    '',
+  );
+  const patched = withoutFlag.replace(
     '<script src="assets/app.js" defer></script>',
     `${LIVE_FLAG}\n    <script src="assets/app.js" defer></script>`,
   );
-  if (patched === html) {
-    throw new Error('Не найден тег подключения assets/app.js в index.html');
+  if (patched.includes('championat-live.mikkorin.workers.dev')) {
+    throw new Error('В index.html остался адрес внешнего Worker — он должен быть пустым');
   }
   await writeFile(indexPath, patched, 'utf8');
 
